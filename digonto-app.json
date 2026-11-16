@@ -1,0 +1,31 @@
+{
+  "slug": "digonto-ssh",
+  "name": "Digonto SSH",
+  "version": "1.7.5",
+  "comment": "SSH terminal and SFTP files, with your servers synced through your own encrypted vault",
+  "entry": "digonto_ssh_app.py",
+  "files": [
+    "digonto_ssh_app.py",
+    "digonto_ui.py",
+    "sshkit",
+    "assets",
+    "requirements.txt",
+    "README.txt"
+  ],
+  "requirements": "requirements.txt",
+  "check": "import PySide6.QtWidgets, paramiko, cryptography; import sshkit.vault, sshkit.emulator",
+  "needs_tk": false,
+  "apt": [
+    "libxcb-cursor0"
+  ],
+  "openssh_server": true,
+  "macos_min": 13,
+  "categories": "Network;RemoteAccess;Utility;",
+  "keywords": "ssh;sftp;terminal;server;",
+  "wm_class": "digonto-ssh",
+  "legacy": {
+    "linux": [],
+    "darwin": [],
+    "windows": []
+  }
+}
