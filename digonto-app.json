@@ -1,7 +1,7 @@
 {
   "slug": "digonto-ssh",
   "name": "Digonto SSH",
-  "version": "1.7.5",
+  "version": "1.7.6",
   "comment": "SSH terminal and SFTP files, with your servers synced through your own encrypted vault",
   "entry": "digonto_ssh_app.py",
   "files": [
