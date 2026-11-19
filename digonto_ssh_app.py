@@ -768,9 +768,8 @@ class Main(QMainWindow):
         self.tree.itemDoubleClicked.connect(lambda it, _c: self.connect_item(it))
         lv.addWidget(self.tree, 1)
         self.acc_btn = None
-        for text, fn in (("Connect", lambda: self.connect_item(self.tree.currentItem())), ("Add server", self.add),
-                         ("Edit", self.edit), ("Delete", self.delete), ("Settings", self.terminal_settings),
-                         ("Account", lambda: self.account_menu(self.acc_btn))):
+        for text, fn in (("Connect", lambda: self.connect_item(self.tree.currentItem())),
+                         ("Account", lambda: self.account_menu(self.acc_btn))):        # add / edit / delete: in the left bar
             b = QPushButton(text)
             b.clicked.connect(fn)
             if text == "Connect":
@@ -808,13 +807,29 @@ class Main(QMainWindow):
         sp.addWidget(self.tabs)
         sp.setStretchFactor(1, 1)
         sp.setSizes([360, 920])
-        self.welcome = QLabel("<h2>Digonto SSH</h2><p>Double-click a server on the left to open a terminal and files.<br>"
-                              "Add your first server with <b>Add server</b>.</p>")
-        self.welcome.setAlignment(Qt.AlignCenter)
+        self.welcome = ui.StartScreen(
+            "SSH terminal and SFTP files - your servers on every computer",
+            [("Add server", "new", self.add, True), ("Connect", "terminal", lambda: self.connect_item(self.tree.currentItem()), False)],
+            "or double-click a server on the left")
         self.tabs.addTab(self.welcome, "Start")
         self.tabs.tabBar().setTabButton(0, self.tabs.tabBar().ButtonPosition.RightSide, None)
+        self.rail = ui.Rail(
+            [("new", "new", "Add server (Ctrl+N)", self.add),
+             ("connect", "terminal", "Connect to the selected server", lambda: self.connect_item(self.tree.currentItem())),
+             ("edit", "pen", "Edit the selected server", self.edit),
+             ("delete", "remove", "Delete the selected server", self.delete),
+             None,
+             ("known", "lock", "Known hosts (servers you trusted)", lambda: self.lefttabs.setCurrentWidget(self.known_tab)),
+             ("account", "server", "Account and sync", lambda: self.account_menu(self.rail.button("account")))],
+            [("settings", "settings", "Settings and help", self.rail_settings)])
+        body = QWidget()
+        bh = QHBoxLayout(body)
+        bh.setContentsMargins(0, 0, 0, 0)
+        bh.setSpacing(0)
+        bh.addWidget(self.rail)
+        bh.addWidget(sp, 1)
         ui.wrap_with_header(self, ui.make_header("Digonto SSH", "SSH terminal and SFTP files, your servers on every computer",
-                                                 self.icon, self.about), sp)
+                                                 self.icon, self.about), body)
         ui.file_menu(self, [("Add server ...", "Ctrl+N", self.add)])
         em = self.menuBar().addMenu("Settings")
         em.addAction("Terminal colours and font ...", self.terminal_settings)
@@ -918,6 +933,15 @@ class Main(QMainWindow):
             self.relogin("The password was changed on another computer. Please sign in again.")
         except Exception:  # noqa: BLE001
             pass
+
+    def rail_settings(self):
+        from PySide6.QtWidgets import QMenu
+        m = QMenu(self)
+        m.addAction("Terminal colours and font …", self.terminal_settings)
+        m.addSeparator()
+        m.addAction("About Digonto SSH", self.about)
+        b = self.rail.button("settings")
+        m.exec(b.mapToGlobal(b.rect().topRight()))
 
     def terminal_settings(self):
         from sshkit.termsettings import TermSettingsDialog
